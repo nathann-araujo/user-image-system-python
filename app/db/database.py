@@ -1,14 +1,13 @@
-from typing import Type
-
-from fastapi import Depends
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, Session
-from app.crud.base import CRUDBase
-# SQLALCHEMY_DATABASE_URL = "sqlite:///./sql_app.db"
+from sqlalchemy.orm import sessionmaker
+import os
+DATABASE = os.environ['POSTGRES_NAME']
+USERNAME = os.environ['POSTGRES_USER']
+PASSWORD = os.environ['POSTGRES_PASSWORD']
 
 
-SQLALCHEMY_DATABASE_URL = "postgresql://admin:admpass@localhost:5432/image_system"
+SQLALCHEMY_DATABASE_URL = f"postgresql://{USERNAME}:{PASSWORD}@db:5432/{DATABASE}"
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL
 )
@@ -23,9 +22,3 @@ def get_db():
         yield db
     finally:
         db.close()
-
-
-def get_crud(crud: Type[CRUDBase]):
-    def get_crud_rep(db: Session = Depends(get_db)):
-        return crud(db)
-    return get_crud_rep

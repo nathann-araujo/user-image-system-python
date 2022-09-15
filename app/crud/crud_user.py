@@ -1,68 +1,29 @@
-from sqlalchemy.exc import NoResultFound
-from sqlalchemy.orm import Session
+from app.crud.base import CRUDBase
 from app.model.user import User
-from app.model.image import Image
-from app.schemas import image_schema, user_schema
+from app.schemas.user_schema import UserCreate, UserUpdate
 
 
-def get_user(db: Session, user_id: int) -> user_schema.User:
-    return db.query(User).filter(User.id == user_id).first()
+class CRUDUser(CRUDBase):
 
+    def find_user_by_username(self, username:str):
+        db_user = self.db.query(User).filter(User.username == username).first()
+        return db_user
 
-def get_user_by_username(db: Session, username: str):
-    return db.query(User).filter(User.username == username).first()
+    def find_user_by_id(self, user_id: str):
+        db_user = self.db.query(User).filter(User.id == user_id).first()
+        return db_user
 
+    def create_user(self,user: UserCreate):
+        db_user = User(username=user.username)
+        self.db.add(db_user)
+        self.db.commit()
+        self.db.refresh(db_user)
+        return db_user.id
 
-def get_user_images(db: Session, user_id: int):
-    user = get_user(db, user_id)
-    images = user.images
-    return images
+    def update_user(self, user_id:int, user: UserUpdate):
+        user_db = self.db.query(User).filter(User.id == user_id).first()
+        user_db.username = user.username
+        self.db.commit()
+        self.db.refresh(user_db)
+        return user_db.id
 
-
-def get_image(db: Session, user_id: int, image_id: int):
-    db_image = db.query(Image).filter(Image.owner_id == user_id, Image.id == image_id).first()
-    if db_image:
-        return db_image
-    else:
-        raise NoResultFound
-
-
-def create_user(db: Session, user: user_schema.UserCreate):
-    db_user = User(username=user.username)
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-    return db_user
-
-
-def update_user_username(db: Session, user: user_schema.User, username: str):
-    db_user = user
-    db_user.username = username
-    db.commit()
-    db.refresh(db_user)
-    return db_user.id
-
-
-def update_user_image(db: Session, user: user_schema.User, image_id: int, image: str):
-    db_image = get_image(db, user_id= user.id, image_id=image_id)
-    db_image.image = image
-    db.commit()
-    db.refresh(db_image)
-    return db_image
-
-
-def create_user_image(db: Session, image: image_schema.ImageCreate, user_id:int):
-    db_image = Image(image=image.image, owner_id=user_id)
-    db.add(db_image)
-    db.commit()
-    db.refresh(db_image)
-    return db_image
-
-
-def delete_user_image(db: Session, user_id: int, image_id: int):
-    db_image = get_image(db, user_id=user_id, image_id=image_id)
-    if db_image:
-        db.delete(db_image)
-        db.commit()
-    else:
-        raise NoResultFound

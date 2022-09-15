@@ -1,9 +1,8 @@
 from pydantic import BaseModel
-from app.schemas import user_schema
 
 
 class ImageBase(BaseModel):
-    image: str
+    image_b64: str
 
 
 class ImageCreate(ImageBase):
@@ -12,6 +11,7 @@ class ImageCreate(ImageBase):
 
 class Image(ImageBase):
     id: int
+    thumbnail: str
     owner_id: int
     owner: "User"
 

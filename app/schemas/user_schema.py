@@ -1,8 +1,8 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, constr, Field
 
 
 class UserBase(BaseModel):
-    username: str
+    username: str = Field(max_length=75)
 
 
 class UserCreate(UserBase):
@@ -10,16 +10,7 @@ class UserCreate(UserBase):
 
 
 class UserUpdate(UserBase):
-    id: int
-
-
-class UserImage(BaseModel):
-    user_id: int
-    image_id: int
-
-
-class UserImageUpdate(UserImage):
-    image: str
+    pass
 
 
 class User(UserBase):
