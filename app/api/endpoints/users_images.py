@@ -51,7 +51,7 @@ def update_user_image(user_id: int, image_id: int, image: image_schema.ImageCrea
     try:
         updated_image_id = crud_image.update_image(user_id,image_id, image.image_b64)
     except InvalidB64ImageException:
-         raise HTTPException(status_code=400, detail="Invalid base 64 encoded image")
+        raise HTTPException(status_code=400, detail="Invalid base 64 encoded image")
     return {"image_id": updated_image_id}
 
 
